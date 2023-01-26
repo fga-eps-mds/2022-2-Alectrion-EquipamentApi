@@ -9,6 +9,7 @@
     "migration:run": "npm run typeorm -- migration:run -d src/db/config.ts",
     "migration:revert": "npm run typeorm -- migration:revert -d src/db/config.ts",
     "dev": "ts-node-dev --respawn --transpile-only src/main.ts",
+    "seed": "ts-node --respawn --transpile-only src/seed.ts",
     "test": "jest --passWithNoTests --no-cache --runInBand",
     "test:watch": "npm t -- --watch",
     "test:staged": "npm t -- --findRelatedTests",
