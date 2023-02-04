@@ -1,6 +1,9 @@
-export const workStationsApiOptions = {
-  hostname: process.env.SCHEDULA_WORK_STATIONS_URL,
-  port: process.env.SCHEDULA_WORK_STATIONS_PORT,
-  path: '/workstations',
-  method: 'GET'
+import axios from 'axios'
+import { CreateAxiosDefaults } from 'axios'
+
+const schedulaOptions: CreateAxiosDefaults = {
+  baseURL: process.env.SCHEDULA_BASE_URL,
+  timeout: 1500
 }
+
+export const schedulaAxiosClient = axios.create(schedulaOptions)

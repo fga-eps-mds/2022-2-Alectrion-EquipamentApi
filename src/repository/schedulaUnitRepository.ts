@@ -1,21 +1,16 @@
-import { request } from 'https'
-import { workStationsApiOptions } from '../services/schedula'
+import { schedulaAxiosClient } from '../services/schedula'
 import { SchedulaUnitRepositoryProtocol } from './protocol/schedulaUnitRepositoryProtocol'
 
 export class SchedulaUnitRepository implements SchedulaUnitRepositoryProtocol {
-   // private readonly schedulaUnits
-   constructor() {
-      // this.schedulaUnits = request(workStationsApiOptions, (res) => {
-      //    res.addListener()
-      // })
-   }
+   constructor() {}
 
    async findAll(): Promise<any> {
-      let schedulaUnits = {}
-      const schedulaRequest = request(workStationsApiOptions).on('response', (res) => {
-         schedulaUnits = res.read()
-         console.log(`schedula units: ${schedulaUnits}`)
-      }).end()
-      return schedulaUnits
+      console.log(`base url: ${schedulaAxiosClient.defaults.baseURL}`)
+      const responseData = await schedulaAxiosClient.get('/workstations')
+      .then((res) => {
+         console.log(`SchedulaUnitRepository.findAll(): res.status = ${res.status}`)
+         return res.data
+      })
+      return responseData
   }
 }
