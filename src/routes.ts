@@ -33,7 +33,6 @@ routes.put('/updateOrderService', adapt(makeUpdateOrderController()))
 routes.post('/createMovement', adapt(makeCreateMovementController()))
 routes.get('/findMovements', adapt(makeFindMovementsController()))
 routes.delete('/deleteMovement', adapt(makeDeleteMovementController()))
-// criar rota para schedula ?
 routes.get('/getAllSchedulaUnits', adapt(makeFindAllSchedulaUnitsController()))
 
 export default routes
