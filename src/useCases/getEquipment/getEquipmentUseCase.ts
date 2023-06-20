@@ -12,7 +12,7 @@ export interface GetEquipmentInput {
 
   serialNumber?: string
 
-  acquision?: string
+  acquisition?: string
 
   type?: string
 
@@ -24,11 +24,7 @@ export interface GetEquipmentInput {
 
   brand?: string
 
-  initialUseDate?: string
-
   screenSize?: string
-
-  invoiceNumber?: string
 
   power?: string
 
@@ -43,6 +39,10 @@ export interface GetEquipmentInput {
   storageAmount?: string
 
   createdAt?: Date
+
+  take?: number
+
+  skip?: number
 }
 
 class GetEquipmentUseCase implements UseCase<GetEquipmentInput, Equipment[]> {
@@ -69,6 +69,10 @@ class GetEquipmentUseCase implements UseCase<GetEquipmentInput, Equipment[]> {
         data: [equipment]
       }
     }
+
+    if (query.take === undefined) query.take = 0
+
+    if (query.skip === undefined) query.skip = 0
 
     const equipaments = await this.equipmentRepository.genericFind(query)
 

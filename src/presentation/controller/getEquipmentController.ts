@@ -1,3 +1,4 @@
+import { Equipment } from '../../domain/entities/equipment'
 import {
   GetEquipmentInput,
   GetEquipmentUseCase
@@ -7,7 +8,7 @@ import { HttpResponse, ok, serverError } from '../helpers'
 import { Controller } from '../protocols/controller'
 
 type HttpRequest = GetEquipmentInput
-type Model = Error | any
+type Model = Error | Equipment[]
 
 export class GetEquipmentController extends Controller {
   constructor(private getEquipmentUseCase: GetEquipmentUseCase) {
@@ -20,7 +21,7 @@ export class GetEquipmentController extends Controller {
     if (response.isSuccess && response.data) {
       return ok(response.data)
     } else {
-      return serverError('Erro ao buscar equipamentos')
+      return serverError(response.error.message)
     }
   }
 }

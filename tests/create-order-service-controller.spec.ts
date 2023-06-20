@@ -41,9 +41,7 @@ const equipment: Equipment = {
   tippingNumber: 'any',
   model: 'DELL G15',
   serialNumber: 'any',
-  type: Type.CPU,
-  initialUseDate: new Date().toISOString(),
-  invoiceNumber: 'any'
+  type: Type.CPU
 }
 
 const orderService: OrderService = {
@@ -65,7 +63,8 @@ const orderService: OrderService = {
     createdAt: new Date(),
     id: 'any_id',
     updatedAt: new Date()
-  }
+  },
+  authorFunctionalNumber: '123456'
 }
 
 const request: CreateOrderServiceHttpRequest = {
@@ -77,7 +76,8 @@ const request: CreateOrderServiceHttpRequest = {
   senderFunctionalNumber: '',
   senderName: '',
   userId: '',
-  recieverFunctionalNumber: ''
+  receiverFunctionalNumber: '',
+  senderPhone: ''
 }
 
 const useCaseParam: CreateOrderServiceUseCaseData = {
@@ -89,7 +89,8 @@ const useCaseParam: CreateOrderServiceUseCaseData = {
   date: request.date,
   description: request.description,
   receiverName: request.receiverName,
-  reciverFunctionalNumber: request.recieverFunctionalNumber
+  receiverFunctionalNumber: request.receiverFunctionalNumber,
+  senderPhone: request.senderPhone
 }
 
 describe('Should test CreateOrderServiceController', () => {

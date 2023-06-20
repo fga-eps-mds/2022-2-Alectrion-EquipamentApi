@@ -1,4 +1,4 @@
-import { MoreThanOrEqual, LessThanOrEqual, And } from 'typeorm'
+import { MoreThanOrEqual, LessThanOrEqual, And, ILike } from 'typeorm'
 import { dataSource } from '../db/config'
 import { Movement as MovementEntity } from '../db/entities/movement'
 import { Equipment as EquipmentEntity } from '../db/entities/equipment'
@@ -60,42 +60,91 @@ export class MovementRepository implements MovementRepositoryProtocol {
 
     let savedMovementEntity
 
-    switch (movement.type) {
-      case MovementTypes.Borrow: {
-        const destination = await this.unitRepository.findOneBy({
-          id: movement.destination.id
-        })
+    if (movement.type == 0) {
+      const destination = await this.unitRepository.findOneBy({
+        id: movement.destination.id
+      })
 
-        movementEntity.destination = destination
+      movementEntity.destination = destination
 
-        savedMovementEntity = await this.movementRepository.save(movementEntity)
-        await this.updateEquipments(equipments, EquipmentStatus.ACTIVE_LOAN)
-        break
-      }
+      savedMovementEntity = await this.movementRepository.save(movementEntity)
+      await this.updateEquipments(equipments, EquipmentStatus.ACTIVE_LOAN)
+    } else if (movement.type == 1) {
+      savedMovementEntity = await this.movementRepository.save(movementEntity)
+      await this.updateEquipments(equipments, EquipmentStatus.DOWNGRADED)
+    } else {
+      const destination = await this.unitRepository.findOneBy({
+        id: movement.destination.id
+      })
 
-      case MovementTypes.Dismiss: {
-        savedMovementEntity = await this.movementRepository.save(movementEntity)
-        await this.updateEquipments(equipments, equipmentStatus)
-        break
-      }
+      movementEntity.destination = destination
 
-      default: {
-        const destination = await this.unitRepository.findOneBy({
-          id: movement.destination.id
-        })
-
-        movementEntity.destination = destination
-
-        savedMovementEntity = await this.movementRepository.save(movementEntity)
-        await this.updateEquipments(equipments, EquipmentStatus.ACTIVE)
-        break
-      }
+      savedMovementEntity = await this.movementRepository.save(movementEntity)
+      await this.updateEquipments(equipments, EquipmentStatus.ACTIVE)
     }
 
     return { ...movement, equipments, id: savedMovementEntity.id }
   }
 
   async genericFind(query: Query): Promise<Movement[]> {
+    const {
+      id,
+      userId,
+      type,
+      searchTerm,
+      equipmentId,
+      destination,
+      lowerDate,
+      higherDate
+    } = query
+
+    const { resultQuantity, page, ...rest } = query
+
+    let formattedHigherDate = new Date(higherDate)
+
+    if (typeof higherDate === 'undefined' && typeof lowerDate !== 'undefined') {
+      formattedHigherDate = new Date()
+    } else if (typeof higherDate !== 'undefined') {
+      formattedHigherDate.setDate(formattedHigherDate.getDate() + 1)
+    }
+
+    const defaultConditions = {
+      id,
+      userId,
+      type,
+      equipments: equipmentId ? { id: equipmentId } : undefined,
+      destination: destination ? { id: destination } : undefined,
+      date: lowerDate
+        ? And(MoreThanOrEqual(lowerDate), LessThanOrEqual(formattedHigherDate))
+        : undefined
+    }
+
+    const whereConditions =
+      typeof searchTerm !== 'undefined'
+        ? [
+            {
+              inChargeName: ILike(`%${searchTerm}%`),
+              ...defaultConditions
+            },
+            {
+              inChargeRole: ILike(`%${searchTerm}%`),
+              ...defaultConditions
+            },
+            {
+              chiefName: ILike(`%${searchTerm}%`),
+              ...defaultConditions
+            },
+            {
+              chiefRole: ILike(`%${searchTerm}%`),
+              ...defaultConditions
+            }
+          ]
+        : defaultConditions
+
+    const allFieldsUndefined = Object.values(rest).every(
+      (value) => typeof value === 'undefined'
+    )
+
     const queryResult = await this.movementRepository.find({
       relations: [
         'equipments',
@@ -103,25 +152,8 @@ export class MovementRepository implements MovementRepositoryProtocol {
         'equipments.unit',
         'destination'
       ],
-      order: {
-        date: 'DESC'
-      },
-      where: {
-        id: query.id,
-        userId: query.userId,
-        type: query.type,
-        equipments: query.equipmentId
-          ? {
-              id: query.equipmentId
-            }
-          : undefined,
-        date: query.lowerDate
-          ? And(
-              MoreThanOrEqual(query.lowerDate),
-              LessThanOrEqual(query.higherDate)
-            )
-          : undefined
-      },
+      order: { date: 'DESC' },
+      where: allFieldsUndefined ? undefined : whereConditions,
       take: query.resultQuantity,
       skip: query.page * query.resultQuantity
     })

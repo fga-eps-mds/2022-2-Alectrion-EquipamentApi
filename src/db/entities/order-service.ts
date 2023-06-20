@@ -63,7 +63,7 @@ export class OrderService {
     type: 'varchar',
     name: 'sender'
   })
-  senderName: string
+  senderName?: string
 
   @Column({
     type: 'jsonb',
@@ -76,6 +76,12 @@ export class OrderService {
     name: 'sender_functional_number'
   })
   senderFunctionalNumber: string
+
+  @Column({
+    type: 'varchar',
+    name: 'sender_phone'
+  })
+  senderPhone?: string
 
   @Column({
     type: 'enum',
@@ -103,5 +109,4 @@ export class OrderService {
 
   @ManyToOne(() => History, (history) => history.orderServices)
   history: History
-
 }

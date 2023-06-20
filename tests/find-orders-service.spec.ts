@@ -25,9 +25,7 @@ const mockedEquipment: Equipment = {
   tippingNumber: 'any',
   model: 'DELL G15',
   serialNumber: 'any',
-  type: Type.CPU,
-  initialUseDate: new Date().toISOString(),
-  invoiceNumber: 'any'
+  type: Type.CPU
 }
 
 const orderService: OrderService = {
@@ -49,21 +47,18 @@ const orderService: OrderService = {
     createdAt: new Date(),
     id: 'any_id',
     updatedAt: new Date()
-  }
+  },
+  authorFunctionalNumber: '123456'
 }
 
 const request: FindOrderServiceUseCaseData = {
-  authorFunctionalNumber: '',
-  authorId: '',
+  type: '',
+  unit: '',
   date: '',
-  equipmentId: '',
-  receiverName: '',
-  sender: '',
-  senderFunctionalNumber: '',
-  serialNumber: '',
-  situacao: '',
-  tippingNumber: '',
-  type: ''
+  brand: '',
+  search: '',
+  model: '',
+  status: ''
 }
 
 describe('Should test CreateEquipmentController', () => {

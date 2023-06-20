@@ -5,8 +5,10 @@ import { Status as EquipmentStatus } from '../../domain/entities/equipamentEnum/
 import { UseCase, UseCaseReponse } from './../protocol/useCase'
 
 import { EquipmentRepositoryProtocol } from '../../repository/protocol/equipmentRepositoryProtocol'
-import { UnitRepositoryProcol as UnitRepositoryProtocol } from '../../repository/protocol/unitRepositoryProtocol'
+import { UnitRepositoryProtocol } from '../../repository/protocol/unitRepositoryProtocol'
 import { MovementRepositoryProtocol } from '../../repository/protocol/movementRepositoryProtocol'
+import { UpdateEquipmentUseCase } from '../../useCases/updateEquipment/updateEquipment'
+import { UpdateEquipmentRepository } from '../../repository/equipment/update-equipment'
 
 export type CreateMovementUseCaseData = {
   userid: string
@@ -62,7 +64,8 @@ export class CreateMovementUseCase
   constructor(
     private readonly equipmentRepository: EquipmentRepositoryProtocol,
     private readonly unitRepository: UnitRepositoryProtocol,
-    private readonly movementRepository: MovementRepositoryProtocol
+    private readonly movementRepository: MovementRepositoryProtocol,
+    private readonly updateEquipmentRepository: UpdateEquipmentRepository
   ) {}
 
   private areFieldsNull(data: CreateMovementUseCaseData): boolean {
@@ -153,7 +156,15 @@ export class CreateMovementUseCase
 
         movement.destination = destination
 
-        result = await this.movementRepository.create(movement)
+        result = await this.movementRepository
+          .create(movement)
+          .then((atualization) => {
+            atualization.equipments.map((att) => {
+              this.updateEquipmentRepository.updateEquipment(att.id, {
+                situacao: EquipmentStatus.ACTIVE_LOAN
+              })
+            })
+          })
         break
       }
 
@@ -166,7 +177,15 @@ export class CreateMovementUseCase
 
         movement.description = data.description
 
-        result = await this.movementRepository.create(movement, data.status)
+        result = await this.movementRepository
+          .create(movement, data.status)
+          .then((atualization) => {
+            atualization.equipments.map((att) => {
+              this.updateEquipmentRepository.updateEquipment(att.id, {
+                situacao: EquipmentStatus.DOWNGRADED
+              })
+            })
+          })
         break
       }
 
@@ -181,7 +200,15 @@ export class CreateMovementUseCase
 
         movement.destination = destination
 
-        result = await this.movementRepository.create(movement)
+        result = await this.movementRepository
+          .create(movement)
+          .then((atualization) => {
+            atualization.equipments.map((att) => {
+              this.updateEquipmentRepository.updateEquipment(att.id, {
+                situacao: EquipmentStatus.ACTIVE_LOAN
+              })
+            })
+          })
         break
       }
     }

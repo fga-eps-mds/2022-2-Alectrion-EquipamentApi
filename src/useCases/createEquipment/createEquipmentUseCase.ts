@@ -6,12 +6,12 @@ import { ScreenType } from '../../domain/entities/equipamentEnum/screenType'
 import { Status } from '../../domain/entities/equipamentEnum/status'
 import { Estado } from '../../domain/entities/equipamentEnum/estado'
 import { StorageType } from '../../domain/entities/equipamentEnum/storageType'
-import { Type } from '../../domain/entities/equipamentEnum/type'
+import { Type, generalTypes } from '../../domain/entities/equipamentEnum/type'
 import { Equipment } from '../../domain/entities/equipment'
 import AcquisitionRepositoryProtocol from '../../repository/protocol/acquisitionRepositoryProtocol'
 import { BrandRepositoryProtocol } from '../../repository/protocol/brandRepositoryProtocol'
 import { EquipmentRepositoryProtocol } from '../../repository/protocol/equipmentRepositoryProtocol'
-import { UnitRepositoryProcol } from '../../repository/protocol/unitRepositoryProtocol'
+import { UnitRepositoryProtocol } from '../../repository/protocol/unitRepositoryProtocol'
 import { UseCase, UseCaseReponse } from '../protocol/useCase'
 import { Equipment as EquipmentEntity } from '../../db/entities/equipment'
 
@@ -30,13 +30,9 @@ export interface CreateEquipmentInterface {
 
   description?: string
 
-  initialUseDate: string
-
   acquisitionDate: Date
 
   screenSize?: string
-
-  invoiceNumber: string
 
   power?: string
 
@@ -53,6 +49,46 @@ export interface CreateEquipmentInterface {
   acquisitionName: string
 
   unitId: string
+
+  ram_size?: string
+}
+
+export interface EquipmentResource {
+  id: string
+
+  tippingNumber: string
+
+  serialNumber: string
+
+  type: string
+
+  situacao: string
+
+  estado: string
+
+  model: string
+
+  description?: string
+
+  acquisitionDate: Date
+
+  screenSize?: string
+
+  power?: string
+
+  screenType?: string
+
+  processor?: string
+
+  storageType?: string
+
+  storageAmount?: string
+
+  brand: EquipmentBrand
+
+  acquisition: EquipmentAcquisition
+
+  unit: Unit
 
   ram_size?: string
 }
@@ -90,17 +126,16 @@ export class CreateEquipmentUseCase
 {
   constructor(
     private readonly equipmentRepository: EquipmentRepositoryProtocol,
-    private readonly unitRepository: UnitRepositoryProcol,
+    private readonly unitRepository: UnitRepositoryProtocol,
     private readonly brandRepository: BrandRepositoryProtocol,
     private readonly acquisitionRepository: AcquisitionRepositoryProtocol
-  ) {}
+  ) { }
 
   private validFixedFields(equipmentData: CreateEquipmentInterface): boolean {
     if (
       equipmentData.tippingNumber.trim().length > 0 &&
       equipmentData.serialNumber.trim().length > 0 &&
       equipmentData.model.trim().length > 0 &&
-      equipmentData.initialUseDate !== null &&
       equipmentData.type.trim().length > 0 &&
       equipmentData.estado.trim().length > 0
     ) {
@@ -150,9 +185,56 @@ export class CreateEquipmentUseCase
     }
   }
 
+  private mapEquipmentToEquipmentResource(equipment: Equipment) {
+    return {
+      id: equipment.id,
+
+      tippingNumber: equipment.tippingNumber,
+
+      serialNumber: equipment.serialNumber,
+
+      type: equipment.type,
+
+      situacao: equipment.situacao,
+
+      estado: equipment.estado,
+
+      model: equipment.model,
+
+      description: equipment.description,
+
+      acquisitionDate: equipment.acquisitionDate,
+
+      screenSize: equipment.screenSize,
+
+      power: equipment.power,
+
+      screenType: equipment.screenType,
+
+      processor: equipment.processor,
+
+      storageType: equipment.storageType,
+
+      storageAmount: equipment.storageAmount,
+
+      brand: equipment.brand,
+
+      acquisition: equipment.acquisition,
+
+      unit: equipment.unit,
+
+      ram_size: equipment.ram_size,
+
+      createdAt: equipment.createdAt,
+
+      updatedAt: equipment.updatedAt
+
+    }
+  }
+
   async execute(
     equipmentData: CreateEquipmentInterface
-  ): Promise<UseCaseReponse<Equipment>> {
+  ): Promise<UseCaseReponse<any>> {
     const equipment = new EquipmentEntity()
     if (!this.validFixedFields(equipmentData)) {
       return {
@@ -207,9 +289,7 @@ export class CreateEquipmentUseCase
     equipment.estado = equipmentData.estado as Estado
     equipment.model = equipmentData.model
     equipment.description = equipmentData.description ?? ''
-    equipment.initialUseDate = equipmentData.initialUseDate
     equipment.acquisitionDate = equipmentData.acquisitionDate
-    equipment.invoiceNumber = equipmentData.invoiceNumber
     equipment.type = equipmentData.type as Type
 
     switch (equipmentData.type) {
@@ -236,7 +316,7 @@ export class CreateEquipmentUseCase
         equipment.screenSize = equipmentData.screenSize ?? ''
         break
 
-      case Type.Webcam:
+      case generalTypes.find((item) => item === equipmentData.type):
         break
       case Type.Nobreak:
         if (!this.validOthersFields(equipmentData)) {
@@ -253,8 +333,7 @@ export class CreateEquipmentUseCase
         }
         equipment.power = equipmentData.power ?? ''
         break
-      case Type.Escaneador:
-        break
+
       case Type.Estabilizador:
         if (!equipmentData.power) {
           return {
@@ -279,7 +358,7 @@ export class CreateEquipmentUseCase
 
     return {
       isSuccess: true,
-      data: equipment as unknown as Equipment
+      data: this.mapEquipmentToEquipmentResource(equipment)
     }
   }
 }

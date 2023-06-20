@@ -48,7 +48,7 @@ export class Equipment {
     enum: Status
   })
   situacao: Status
-  
+
   @Column({
     type: 'enum',
     enum: Estado
@@ -66,12 +66,6 @@ export class Equipment {
   description?: string
 
   @Column({
-    name: 'initial_use_date',
-    type: 'varchar'
-  })
-  initialUseDate: string
-
-  @Column({
     name: 'acquisition_date',
     type: 'date'
   })
@@ -83,12 +77,6 @@ export class Equipment {
     nullable: true
   })
   screenSize?: string
-
-  @Column({
-    name: 'invoice_number',
-    type: 'varchar'
-  })
-  invoiceNumber: string
 
   @Column({
     type: 'varchar',
@@ -151,7 +139,7 @@ export class Equipment {
     () => EquipmentAcquisition,
     (equipmentAcquisition) => equipmentAcquisition.equipment
   )
-  acquisition?: EquipmentBrand
+  acquisition?: EquipmentAcquisition
 
   @ManyToOne(() => Unit, (unit) => unit.equipments)
   @JoinTable()

@@ -1,4 +1,5 @@
 import { EquipmentBrand } from './brand'
+import { EquipmentAcquisition } from '../../db/entities/equipment-acquisition'
 import { ScreenType } from './equipamentEnum/screenType'
 import { Status } from './equipamentEnum/status'
 import { Estado } from './equipamentEnum/estado'
@@ -25,13 +26,9 @@ export type Equipment = {
 
   description?: string
 
-  initialUseDate: string
-
   acquisitionDate: Date
 
   screenSize?: string
-
-  invoiceNumber: string
 
   power?: string
 
@@ -55,7 +52,7 @@ export type Equipment = {
 
   brand?: EquipmentBrand
 
-  acquisition?: EquipmentBrand
+  acquisition?: EquipmentAcquisition
 
   unit?: Unit
 }

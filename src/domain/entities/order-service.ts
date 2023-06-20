@@ -13,7 +13,7 @@ export type OrderService = {
 
   receiverName: string
 
-  sender: string
+  sender?: string
 
   equipmentSnapshot: any
 
@@ -34,4 +34,8 @@ export type OrderService = {
   status: Status
 
   receiverDate?: Date
+
+  authorFunctionalNumber: string
+
+  senderPhone?: string
 }
